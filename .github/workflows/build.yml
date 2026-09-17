@@ -18,19 +18,31 @@ jobs:
           distribution: 'temurin'
           java-version: '17'
 
+      - name: Find project structure
+        run: |
+          echo "=== Файлы в корне ==="
+          ls -la
+          echo "=== Ищем gradlew ==="
+          find . -name gradlew -type f
+          echo "=== Ищем app/libs ==="
+          find . -name "libs" -type d
+
       - name: Download libv2ray.aar
         run: |
-          mkdir -p app/libs
-          curl -L -o app/libs/libv2ray.aar https://github.com/2dust/AndroidLibXrayLite/releases/latest/download/libv2ray.aar
-
-      - name: Grant execute permission for gradlew
-        run: chmod +x gradlew
+          PROJECT_DIR=$(dirname $(find . -name gradlew -type f | head -1))
+          echo "Проект в: $PROJECT_DIR"
+          mkdir -p "$PROJECT_DIR/app/libs"
+          curl -L -o "$PROJECT_DIR/app/libs/libv2ray.aar" https://github.com/2dust/AndroidLibXrayLite/releases/latest/download/libv2ray.aar
 
       - name: Build Debug APK
-        run: ./gradlew assembleDebug
+        run: |
+          PROJECT_DIR=$(dirname $(find . -name gradlew -type f | head -1))
+          cd "$PROJECT_DIR"
+          chmod +x gradlew
+          ./gradlew assembleDebug
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
           name: v2rayNG-debug
-          path: app/build/outputs/apk/debug/*.apk
+          path: "**/build/outputs/apk/debug/*.apk"
