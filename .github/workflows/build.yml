@@ -1,0 +1,41 @@
+name: Build APK
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+
+      - name: Setup Android SDK
+        uses: android-actions/setup-android@v3
+
+      - name: Download libv2ray.aar
+        run: |
+          mkdir -p V2rayNG/app/libs
+          curl -L -o V2rayNG/app/libs/libv2ray.aar https://github.com/2dust/AndroidLibXrayLite/releases/latest/download/libv2ray.aar
+
+      - name: Grant execute permission for gradlew
+        run: chmod +x V2rayNG/gradlew
+
+      - name: Build Debug APK
+        run: |
+          cd V2rayNG
+          ./gradlew assembleDebug
+
+      - name: Upload APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: v2rayNG-debug
+          path: V2rayNG/app/build/outputs/apk/debug/*.apk
