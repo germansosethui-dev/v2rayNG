@@ -18,24 +18,19 @@ jobs:
           distribution: 'temurin'
           java-version: '17'
 
-      - name: Setup Android SDK
-        uses: android-actions/setup-android@v3
-
       - name: Download libv2ray.aar
         run: |
-          mkdir -p V2rayNG/app/libs
-          curl -L -o V2rayNG/app/libs/libv2ray.aar https://github.com/2dust/AndroidLibXrayLite/releases/latest/download/libv2ray.aar
+          mkdir -p app/libs
+          curl -L -o app/libs/libv2ray.aar https://github.com/2dust/AndroidLibXrayLite/releases/latest/download/libv2ray.aar
 
       - name: Grant execute permission for gradlew
-        run: chmod +x V2rayNG/gradlew
+        run: chmod +x gradlew
 
       - name: Build Debug APK
-        run: |
-          cd V2rayNG
-          ./gradlew assembleDebug
+        run: ./gradlew assembleDebug
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
           name: v2rayNG-debug
-          path: V2rayNG/app/build/outputs/apk/debug/*.apk
+          path: app/build/outputs/apk/debug/*.apk
